@@ -14,16 +14,17 @@ import lombok.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "GS2025_USUARIO")
-@Data
+@Table(name = "GS2025_USER")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
-    @SequenceGenerator(name = "user_seq", sequenceName = "SEQ_GS2025_USUARIO", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_USER")
     private Long id;
 
     @Column(nullable = false)
@@ -38,6 +39,6 @@ public class User {
     private String phone;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "DT_CADASTRO")
+    @Column(name = "Created_At")
     private Date createdAt;
 }
