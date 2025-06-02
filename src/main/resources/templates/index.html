@@ -47,13 +47,25 @@
             <p th:if="${alerts == null or alerts.isEmpty()}">Nenhum alerta recente.</p>
         </section>
 
-        <div class="tip">
-            🔒 <strong>Dica de Segurança:</strong> Tenha sempre um kit de primeiros socorros acessível em locais de alto risco.
+        <div class="ai-tip">
+            <h2>Dica de Segurança por IA</h2>
+            <p id="dica" style="font-style: italic; color: #0077cc;" th:text="${mensagem}">Carregando dica...</p>
+            <button onclick="gerarNovaDica()">Gerar nova dica</button>
         </div>
     </main>
 
     <!-- Footer Fragment -->
     <div th:replace="~{fragments/footer :: footer}"></div>
 </div>
+
+<script>
+    function gerarNovaDica() {
+        fetch('/api/dica')
+            .then(response => response.text())
+            .then(dica => {
+                document.getElementById('dica').innerText = dica;
+            });
+    }
+</script>
 </body>
 </html>

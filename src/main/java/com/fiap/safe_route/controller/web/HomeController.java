@@ -1,25 +1,33 @@
 package com.fiap.safe_route.controller.web;
 
 import com.fiap.safe_route.dto.alert.AlertResponse;
+import com.fiap.safe_route.service.AiService;
 import com.fiap.safe_route.service.AlertService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.support.RequestContextUtils;
 
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 
 @Controller
 public class HomeController {
     private final AlertService alertService;
+    private final AiService aiService;
 
-    public HomeController(AlertService alertService) {
+    public HomeController(AlertService alertService, AiService aiService) {
         this.alertService = alertService;
+        this.aiService = aiService;
     }
 
     @GetMapping("/")
@@ -53,5 +61,13 @@ public class HomeController {
     @GetMapping("/login")
     public String login() {
         return "login";
+    }
+
+    @GetMapping("/api/dica")
+    public ResponseEntity<String> novaDica(HttpServletRequest request) {
+        LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
+        Locale locale = (localeResolver != null) ? localeResolver.resolveLocale(request) : request.getLocale();
+        String dica = aiService.gerarDicaSeguranca(locale);
+        return ResponseEntity.ok(dica);
     }
 }
