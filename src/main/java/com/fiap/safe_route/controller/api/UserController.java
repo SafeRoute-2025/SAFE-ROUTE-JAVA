@@ -1,4 +1,4 @@
-package com.fiap.safe_route.controller;
+package com.fiap.safe_route.controller.api;
 
 import com.fiap.safe_route.dto.user.UserRequest;
 import com.fiap.safe_route.dto.user.UserResponse;
@@ -36,8 +36,12 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserResponse> create(
             @RequestBody @Valid UserRequest request) {
-        UserResponse response = service.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            UserResponse response = service.create(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @Operation(summary = "Get all users (paginated)")
@@ -49,17 +53,17 @@ public class UserController {
     public ResponseEntity<Page<UserResponse>> getAllUsers(
             @PageableDefault(size = 10, sort = "name") Pageable pageable
     ) {
-        Page<UserResponse> users = service.findAll(pageable);
-        if (users.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        Page<UserResponse> usersWithLinks = users.map(user -> {
-            Link link = linkTo(methodOn(UserController.class).getUserById(
-                    user.getId())).withSelfRel();
-            user.setLink(link);
-            return user;
-        });
-        return ResponseEntity.ok(usersWithLinks);
+            Page<UserResponse> users = service.findAll(pageable);
+            if (users.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+            Page<UserResponse> usersWithLinks = users.map(user -> {
+                Link link = linkTo(methodOn(UserController.class).getUserById(
+                        user.getId())).withSelfRel();
+                user.setLink(link);
+                return user;
+            });
+            return ResponseEntity.ok(usersWithLinks);
     }
 
 

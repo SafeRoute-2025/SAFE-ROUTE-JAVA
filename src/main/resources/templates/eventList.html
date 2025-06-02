@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Eventos Cadastrados</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container">
+    <h2>Eventos Cadastrados</h2>
+    <div class="btn-group" style="margin-bottom: 20px;">
+        <a></a>
+        <button type="button" onclick="openCreateModal()">Novo Evento</button>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tipo</th>
+            <th>Descrição</th>
+            <th>Data</th>
+            <th>Nível de Risco</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="event : ${eventsPage.content}">
+            <td th:text="${event.id}"></td>
+            <td th:text="${event.eventType}"></td>
+            <td th:text="${event.description}"></td>
+            <td th:text="${#dates.format(event.eventDate, 'dd/MM/yyyy HH:mm')}"></td>
+            <td th:text="${event.riskLevel}"></td>
+            <td th:text="${event.latitude}"></td>
+            <td th:text="${event.longitude}"></td>
+            <td class="actions-cell">
+                <button class="edit-button" th:attr="data-id=${event.id}" onclick="openEditModal(this)">Editar</button>
+                <button class="delete-button" th:attr="data-id=${event.id}" onclick="deleteEvent(this)">Excluir</button>
+                <button th:onclick="|openInMaps(${event.latitude}, ${event.longitude})|">
+                    Ver no Mapa
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <a th:if="${eventsPage.hasPrevious()}" th:href="@{/events(page=${eventsPage.number - 1})}">Anterior</a>
+        <span th:text="'Página ' + (${eventsPage.number} + 1) + ' de ' + ${eventsPage.totalPages}"></span>
+        <a th:if="${eventsPage.hasNext()}" th:href="@{/events(page=${eventsPage.number + 1})}">Próxima</a>
+    </div>
+</div>
+
+<!-- Modal de Edição -->
+<div id="editModal" class="modal hide">
+    <div class="modal-content">
+        <h3>Editar Evento</h3>
+        <form id="editForm">
+            <input type="hidden" id="editEventId">
+            <label for="editEventType">Tipo:</label>
+            <input type="text" id="editEventType"/>
+            <label for="editDescription">Descrição:</label>
+            <input type="text" id="editDescription"/>
+            <label for="editEventDate">Data:</label>
+            <input type="datetime-local" id="editEventDate"/>
+            <label for="editRiskLevel">Nível de Risco:</label>
+            <input type="text" id="editRiskLevel"/>
+            <label for="editLatitude">Latitude:</label>
+            <input type="number" step="any" id="editLatitude"/>
+            <label for="editLongitude">Longitude:</label>
+            <input type="number" step="any" id="editLongitude"/>
+            <div class="btn-group">
+                <button type="button" onclick="saveEdit()">Salvar</button>
+                <button type="button" onclick="closeEditModal()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal de Criação -->
+<div id="createModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeCreateModal()">&times;</span>
+        <h3 id="createModalTitle">Novo Evento</h3>
+        <form id="createForm">
+            <label for="eventTypeInput">Buscar Tipo de Evento:</label>
+            <input type="text" id="eventTypeInput" placeholder="Digite para filtrar..." oninput="filterEventTypes()"/>
+            <label for="eventType">Tipo de Evento:</label>
+            <select id="eventType" required></select>
+            <label for="createDescription">Descrição:</label>
+            <input type="text" id="createDescription">
+            <label for="createEventDate">Data:</label>
+            <input type="datetime-local" id="createEventDate">
+            <label for="riskLevel">Nível de Risco:</label>
+            <select id="riskLevel" required></select>
+            <label for="createLatitude">Latitude:</label>
+            <input type="number" step="any" id="createLatitude">
+            <label for="createLongitude">Longitude:</label>
+            <input type="number" step="any" id="createLongitude">
+            <div class="btn-group">
+                <button type="button" onclick="closeCreateModal()">Cancelar</button>
+                <button type="submit">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    let allEventTypes = [];
+    let allRiskLevels = [];
+
+    const createModal = document.getElementById('createModal');
+    const createForm = document.getElementById('createForm');
+
+    function openCreateModal() {
+        try {
+            document.getElementById("createForm").reset();
+            document.getElementById("createModalTitle").textContent = "Novo Evento";
+            document.getElementById("createModal").style.display = "flex";
+
+            fetch("/api/event-types/list")
+                .then(res => res.json())
+                .then(data => {
+                    allEventTypes = data;
+                    renderEventTypeOptions(data);
+                })
+                .catch(e => console.warn("Erro ao buscar tipos:", e));
+
+            fetch("/api/risk-levels")
+                .then(res => res.json())
+                .then(data => {
+                    allRiskLevels = data;
+                    renderRiskLevelOptions(data);
+                })
+                .catch(e => console.warn("Erro ao buscar níveis de risco:", e));
+        } catch (e) {
+            console.error("Erro ao abrir modal:", e);
+        }
+    }
+
+    function closeCreateModal() {
+        document.getElementById("createModal").style.display = "none";
+    }
+
+    createForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const payload = {
+            eventType: document.getElementById('eventType').value,
+            description: document.getElementById('createDescription').value,
+            eventDate: document.getElementById('createEventDate').value,
+            riskLevel: document.getElementById('riskLevel').value,
+            latitude: parseFloat(document.getElementById('createLatitude').value),
+            longitude: parseFloat(document.getElementById('createLongitude').value)
+        };
+
+        fetch('/api/events', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        })
+            .then(res => {
+                if (res.ok) {
+                    alert('Evento criado com sucesso!');
+                    location.reload();
+                } else {
+                    return res.text().then(msg => alert("Erro: " + msg));
+                }
+            });
+    });
+
+    function renderEventTypeOptions(list) {
+        const select = document.getElementById("eventType");
+        select.innerHTML = "";
+        list.forEach(type => {
+            const option = document.createElement("option");
+            option.value = type.name;
+            option.textContent = type.name;
+            select.appendChild(option);
+        });
+    }
+
+    function renderRiskLevelOptions(list) {
+        const select = document.getElementById("riskLevel");
+        select.innerHTML = "";
+        list.forEach(level => {
+            const option = document.createElement("option");
+            option.value = level.name;
+            option.textContent = level.name;
+            select.appendChild(option);
+        });
+    }
+
+    function filterEventTypes() {
+        const input = document.getElementById("eventTypeInput").value.toLowerCase();
+        const filtered = allEventTypes.filter(type => type.name.toLowerCase().includes(input));
+        renderEventTypeOptions(filtered);
+    }
+
+    function openEditModal(button) {
+        const id = button.getAttribute("data-id");
+        fetch('/api/events/' + id)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('editEventId').value = data.id;
+                document.getElementById('editEventType').value = data.eventType;
+                document.getElementById('editDescription').value = data.description;
+                document.getElementById('editEventDate').value = data.eventDate.substring(0, 16);
+                document.getElementById('editRiskLevel').value = data.riskLevel;
+                document.getElementById('editLatitude').value = data.latitude;
+                document.getElementById('editLongitude').value = data.longitude;
+
+                document.getElementById('editModal').classList.remove('hide');
+            });
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').classList.add('hide');
+    }
+
+    function saveEdit() {
+        const id = document.getElementById('editEventId').value;
+
+        const payload = {
+            eventType: document.getElementById('editEventType').value,
+            description: document.getElementById('editDescription').value,
+            eventDate: document.getElementById('editEventDate').value,
+            riskLevel: document.getElementById('editRiskLevel').value,
+            latitude: parseFloat(document.getElementById('editLatitude').value),
+            longitude: parseFloat(document.getElementById('editLongitude').value)
+        };
+
+        fetch('/api/events/' + id, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        })
+            .then(res => {
+                if (res.ok) {
+                    alert('Evento atualizado com sucesso');
+                    location.reload();
+                } else {
+                    return res.text().then(msg => alert("Erro: " + msg));
+                }
+            });
+    }
+
+    function deleteEvent(button) {
+        const id = button.getAttribute("data-id");
+
+        if (confirm("Deseja excluir este evento?")) {
+            fetch('/api/events/' + id, {method: 'DELETE'})
+                .then(res => {
+                    if (res.ok) {
+                        alert('Evento excluído');
+                        location.reload();
+                    } else {
+                        return res.text().then(msg => alert("Erro: " + msg));
+                    }
+                });
+        }
+    }
+
+    window.onclick = function (event) {
+        if (event.target === createModal) {
+            closeCreateModal();
+        }
+        if (event.target === document.getElementById('editModal')) {
+            closeEditModal();
+        }
+    };
+    function openInMaps(lat, lng) {
+        const url = `https://www.google.com/maps?q=${lat},${lng}`;
+        window.open(url, '_blank');
+    }
+
+</script>
+</body>
+</html>

@@ -3,7 +3,7 @@ package com.fiap.safe_route.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "GS2025_ALERT")
@@ -25,6 +25,5 @@ public class Alert {
     private String message;
 
     @Column(name = "SENT_AT")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date sentAt;
+    private LocalDateTime sentAt;
 }

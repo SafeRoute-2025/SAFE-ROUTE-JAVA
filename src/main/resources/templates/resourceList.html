@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Recursos por Local Seguro</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <div class="container">
+        <h2 class="text-center">Gerenciar Recursos</h2>
+
+        <form id="selectForm" class="container-resource" method="get" action="/resources" style="margin-bottom: 20px;">
+            <label for="safePlaceSelect">Selecione o Local Seguro:</label>
+            <select id="safePlaceSelect" name="safePlaceId" onchange="document.getElementById('selectForm').submit()" required>
+                <option value="">-- Escolha um local --</option>
+                <option th:each="place : ${safePlaces}" th:value="${place.id}"
+                        th:text="${place.name}" th:selected="${place.id == safePlaceId}"></option>
+            </select>
+        </form>
+
+        <div class="btn-group text-center" style="margin-bottom: 20px;" th:if="${safePlaceId != null}">
+            <a th:href="@{/safe-places}" class="cancel-button">Voltar</a>
+            <button type="button" onclick="openCreateResourceModal()">Novo Recurso</button>
+        </div>
+
+        <table th:if="${safePlaceId != null}" style="margin: 0 auto;">
+            <thead>
+            <tr>
+                <th>Tipo</th>
+                <th>Quantidade</th>
+                <th>Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="res : ${resourcesPage.content}">
+                <td th:text="${res.resourceType}"></td>
+                <td th:text="${res.availableQuantity}"></td>
+                <td class="actions-cell">
+                    <button th:attr="onclick=|openEditResourceModal(${res.id})|">Editar</button>
+                    <button class="delete-button" th:attr="data-id=${res.id}" onclick="deleteResource(this)">Excluir</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p th:if="${safePlaceId != null and (resourcesPage == null or resourcesPage.empty)}" class="text-center">Nenhum recurso encontrado para este local.</p>
+
+        <div class="pagination" th:if="${resourcesPage != null}">
+            <a th:if="${!resourcesPage.first}" th:href="@{/resources(safePlaceId=${safePlaceId}, page=0)}">Primeira</a>
+            <a th:if="${resourcesPage.hasPrevious()}" th:href="@{/resources(safePlaceId=${safePlaceId}, page=${resourcesPage.number - 1})}">Anterior</a>
+
+            <span th:text="'Página ' + (${resourcesPage.number + 1}) + ' de ' + ${resourcesPage.totalPages}"></span>
+
+            <a th:if="${resourcesPage.hasNext()}" th:href="@{/resources(safePlaceId=${safePlaceId}, page=${resourcesPage.number + 1})}">Próxima</a>
+            <a th:if="${!resourcesPage.last}" th:href="@{/resources(safePlaceId=${safePlaceId}, page=${resourcesPage.totalPages - 1})}">Última</a>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="resourceModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeResourceModal()">&times;</span>
+            <h3 id="resourceModalTitle">Novo Recurso</h3>
+            <form id="resourceForm">
+                <input type="hidden" id="resourceId">
+                <label for="resourceTypeInput">Buscar Tipo:</label>
+                <input type="text" id="resourceTypeInput" placeholder="Digite para filtrar tipos..." oninput="filterResourceTypes()">
+
+                <label for="resourceTypeSelect">Tipo:</label>
+                <select id="resourceTypeSelect" required></select>
+
+                <label for="resourceQuantity">Quantidade:</label>
+                <input type="number" id="resourceQuantity" required>
+
+                <div class="btn-group">
+                    <button type="submit">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</div>
+
+<script>
+    const safePlaceId = [[${safePlaceId}]];
+    let allResourceTypes = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+        fetch('/api/resource-types')
+            .then(res => res.json())
+            .then(data => {
+                allResourceTypes = data;
+                renderResourceTypeOptions(data);
+            });
+    });
+
+    function renderResourceTypeOptions(list) {
+        const select = document.getElementById("resourceTypeSelect");
+        select.innerHTML = '';
+        list.forEach(type => {
+            const option = document.createElement("option");
+            option.value = type.id;
+            option.textContent = type.name;
+            select.appendChild(option);
+        });
+    }
+
+    function openCreateResourceModal() {
+        document.getElementById("resourceForm").reset();
+        document.getElementById("resourceId").value = "";
+        document.getElementById("resourceModalTitle").textContent = "Novo Recurso";
+        document.getElementById("resourceModal").style.display = "flex";
+    }
+
+    function openEditResourceModal(id) {
+        fetch(`/api/resources/${id}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("resourceId").value = data.id;
+                document.getElementById("resourceQuantity").value = data.availableQuantity;
+                document.getElementById("resourceModalTitle").textContent = "Editar Recurso";
+                const match = allResourceTypes.find(t => t.name === data.resourceType);
+                if (match) document.getElementById("resourceTypeSelect").value = match.id;
+                document.getElementById("resourceModal").style.display = "flex";
+            });
+    }
+
+    function closeResourceModal() {
+        document.getElementById("resourceModal").style.display = "none";
+    }
+
+    document.getElementById("resourceForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const id = document.getElementById("resourceId").value;
+        const payload = {
+            resourceTypeId: parseInt(document.getElementById("resourceTypeSelect").value),
+            availableQuantity: parseInt(document.getElementById("resourceQuantity").value),
+            safePlaceId: safePlaceId
+        };
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/api/resources/${id}` : `/api/resources`;
+
+        fetch(url, {
+            method: method,
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        }).then(res => {
+            if (res.ok) {
+                alert("Recurso salvo com sucesso!");
+                location.reload();
+            } else {
+                return res.text().then(msg => alert("Erro: " + msg));
+            }
+        });
+    });
+
+    function deleteResource(button) {
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        const id = button.getAttribute("data-id");
+        if (confirm("Deseja excluir este recurso?")) {
+            fetch(`/api/resources/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                }
+            }).then(res => {
+                    if (res.ok) {
+                        alert("Recurso excluído com sucesso!");
+                        location.reload();
+                    } else {
+                        return res.text().then(msg => alert("Erro: " + msg));
+                    }
+                });
+        }
+    }
+
+    window.onclick = function (event) {
+        if (event.target === document.getElementById("resourceModal")) {
+            closeResourceModal();
+        }
+    }
+
+    function filterResourceTypes() {
+        const input = document.getElementById("resourceTypeInput").value.toLowerCase();
+        const filtered = allResourceTypes.filter(type => type.name.toLowerCase().includes(input));
+        renderResourceTypeOptions(filtered);
+    }
+
+</script>
+<meta name="_csrf" th:content="${_csrf.token}"/>
+<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Locais Seguros</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <div class="container">
+        <h2 class="text-center">Locais Seguros</h2>
+        <div class="btn-group text-center align-right" style="margin-bottom: 20px;">
+            <a></a>
+            <button onclick="openCreateModal()">Novo Local Seguro</button>
+        </div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Endereço</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="place : ${safePlacesPage.content}">
+                <td th:text="${place.name}"></td>
+                <td th:text="${place.address}"></td>
+                <td th:text="${place.latitude}"></td>
+                <td th:text="${place.longitude}"></td>
+                <td class="actions-cell">
+                    <button th:attr="onclick=|openEditModal(${place.id})|">Editar</button>
+                    <button class="delete-button" th:attr="data-id=${place.id}" onclick="deleteSafePlace(this)">
+                        Excluir
+                    </button>
+                    <button th:attr="onclick=|window.location='/resources?safePlaceId=${place.id}'|">
+                        Gerenciar Recursos
+                    </button>
+                    <button th:onclick="|openInMaps(${place.latitude}, ${place.longitude})|">
+                        Ver no Mapa
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p th:if="${safePlacesPage == null or safePlacesPage.empty}">Nenhum local seguro encontrado.</p>
+
+        <div class="pagination">
+            <a th:if="${!safePlacesPage.first}" th:href="@{/safe-places(page=0)}">Primeira</a>
+            <a th:if="${safePlacesPage.hasPrevious()}" th:href="@{/safe-places(page=${safePlacesPage.number - 1})}">Anterior</a>
+
+            <span th:text="'Página ' + (${safePlacesPage.number + 1}) + ' de ' + ${safePlacesPage.totalPages}"></span>
+
+            <a th:if="${safePlacesPage.hasNext()}"
+               th:href="@{/safe-places(page=${safePlacesPage.number + 1})}">Próxima</a>
+            <a th:if="${!safePlacesPage.last}"
+               th:href="@{/safe-places(page=${safePlacesPage.totalPages - 1})}">Última</a>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="safePlaceModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="modal-title">Novo Local Seguro</h3>
+            <form id="safePlaceForm">
+                <input type="hidden" id="safePlaceId">
+                <label for="name">Nome:</label>
+                <input type="text" id="name" required>
+                <label for="address">Endereço:</label>
+                <input type="text" id="address" required>
+                <label for="latitude">Latitude:</label>
+                <input type="number" id="latitude" step="any" required>
+                <label for="longitude">Longitude:</label>
+                <input type="number" id="longitude" step="any" required>
+                <button type="submit">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</div>
+
+<script>
+    const modal = document.getElementById("safePlaceModal");
+    const form = document.getElementById("safePlaceForm");
+    const title = document.getElementById("modal-title");
+
+    function openCreateModal() {
+        title.textContent = "Novo Local Seguro";
+        form.reset();
+        document.getElementById("safePlaceId").value = "";
+        modal.style.display = "flex";
+    }
+
+    function openEditModal(id) {
+        fetch("/api/safe-places/" + id)
+            .then(res => res.json())
+            .then(data => {
+                title.innerHTML = '🖉 Editar: <span style="font-weight: bold;">' + data.name + '</span>';
+                document.getElementById("safePlaceId").value = data.id;
+                document.getElementById("name").value = data.name;
+                document.getElementById("address").value = data.address;
+                document.getElementById("latitude").value = data.latitude;
+                document.getElementById("longitude").value = data.longitude;
+                modal.style.display = "flex";
+            });
+    }
+
+    function closeModal() {
+        modal.style.display = "none";
+    }
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const id = document.getElementById("safePlaceId").value;
+        const payload = {
+            name: document.getElementById("name").value,
+            address: document.getElementById("address").value,
+            latitude: parseFloat(document.getElementById("latitude").value),
+            longitude: parseFloat(document.getElementById("longitude").value)
+        };
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? '/api/safe-places/' + id : '/api/safe-places';
+
+        fetch(url, {
+            method: method,
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        }).then(res => {
+            if (res.ok) {
+                alert("Local seguro salvo com sucesso!");
+                location.reload();
+            } else {
+                return res.text().then(msg => alert("Erro: " + msg));
+            }
+        });
+    });
+
+    function deleteSafePlace(button) {
+        const id = button.getAttribute("data-id");
+
+        if (confirm("Deseja excluir este local seguro?")) {
+            fetch('/api/safe-places/' + id, {method: 'DELETE'})
+                .then(res => {
+                    if (res.ok) {
+                        alert("Local seguro excluído com sucesso!");
+                        location.reload();
+                    } else {
+                        return res.text().then(msg => alert("Erro: " + msg));
+                    }
+                });
+        }
+    }
+
+    window.onclick = function (event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+
+    function openInMaps(lat, lng) {
+        const url = `https://www.google.com/maps?q=${lat},${lng}`;
+        window.open(url, '_blank');
+    }
+
+</script>
+
+</body>
+</html>

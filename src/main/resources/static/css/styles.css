@@ -1,0 +1,580 @@
+/* ==================== RESET ==================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    min-height: 100vh;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+body {
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+
+.container {
+    width: 90%;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.text-center {
+    text-align: center;
+    align-content: center;
+}
+
+.container-resource {
+    text-align-all: center;
+    text-align: center;
+    text-align-last: center;
+}
+
+h1, h2, h3 {
+    margin-bottom: 20px;
+    color: #0B1E51;
+}
+
+/* ==================== FORMULÁRIO ==================== */
+form label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+form input,
+form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #0B1E51;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.btn-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+button,
+.cancel-button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 24px;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+button {
+    background-color: #0B1E51;
+    color: white;
+}
+
+button:hover {
+    background-color: #093a80;
+}
+
+.cancel-button {
+    background-color: #98C1FF;
+    color: #0B1E51;
+}
+
+.cancel-button:hover {
+    background-color: #80aaff;
+}
+
+/* ==================== TABELA ==================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    text-align: center;
+    align-items: center;
+
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+}
+
+th {
+    background-color: #0B1E51;
+    color: white;
+}
+
+.edit-button {
+    background-color: #0B1E51;
+    color: white;
+}
+
+.delete-button {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.edit-button:hover {
+    background-color: #093a80;
+}
+
+.delete-button:hover {
+    background-color: #c0392b;
+}
+
+/* ==================== PAGINAÇÃO ==================== */
+.pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #0B1E51;
+    font-weight: bold;
+}
+
+/* ==================== MODAL ==================== */
+.modal {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+.modal {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content label {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.modal.hide {
+    display: none !important;
+}
+
+/* ==================== INDEX ==================== */
+main {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+section.welcome {
+    background-color: #98C1FF;
+    padding: 40px 20px;
+    border-radius: 16px;
+    margin: 40px auto;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    text-align: center;
+}
+
+section.welcome .logo {
+    width: 100px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+section.welcome .button {
+    background-color: #0B1E51;
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 30px;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+section.welcome .button:hover {
+    background-color: #093a80;
+}
+
+/* Tabela de alertas */
+section.alerts {
+    margin-top: 40px;
+    text-align: center;
+}
+
+section.alerts h2 {
+    font-size: 22px;
+    color: #0B1E51;
+    margin-bottom: 10px;
+}
+
+section.alerts table {
+    margin: 0 auto;
+    width: 100%;
+    max-width: 900px;
+    border-collapse: collapse;
+}
+
+section.alerts th {
+    background-color: #0B1E51;
+    color: white;
+    padding: 12px;
+}
+
+section.alerts td {
+    background-color: #fff;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+footer {
+    background-color: #0B1E51;
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+    font-size: 14px;
+    width: 100%;
+    position: relative;
+    margin: 0 auto;
+}
+
+
+/* ==================== HEADER ==================== */
+header {
+    background-color: #0B1E51;
+    padding: 16px 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+}
+
+nav {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: 20px;
+    font-size: 16px;
+    transition: color 0.3s;
+}
+
+nav a.logo {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-left: 0;
+}
+
+nav a:hover {
+    color: #98C1FF;
+}
+
+/* Agrupamento de botões em coluna */
+.actions-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+}
+
+.actions-cell button {
+    width: 180px;
+    padding: 8px 0;
+    border-radius: 30px;
+    font-weight: bold;
+}
+
+.btn-group button {
+    background-color: #e67e22;
+    color: white;
+    border-radius: 30px;
+    font-weight: bold;
+}
+
+.btn-group button:hover {
+    background-color: #d35400;
+}
+
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.card-link {
+    background: #f0f0f0;
+    padding: 20px;
+    text-align: center;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #333;
+    width: 200px;
+    transition: transform 0.2s ease;
+}
+
+.card-link:hover {
+    transform: scale(1.05);
+    background: #e0e0e0;
+}
+
+.dashboard-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin: 30px 0;
+}
+
+
+.tip {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 15px 20px;
+    margin: 40px auto;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 800px;
+    font-size: 15px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+.form-field {
+    padding: 10px;
+    width: 400px;
+    border: 1px solid #0B1E51;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.form-button {
+    padding: 10px 20px;
+    background-color: #0B1E51;
+    width: 200px;
+    color: white;
+    border: none;
+    border-radius: 24px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-button:hover {
+    background-color: #093a80;
+}
+
+/* ============ TELA DE LOGIN ============ */
+.login-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(to bottom right, #0B1E51, #98C1FF);
+}
+
+.login-container {
+    background-color: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 100%;
+    max-width: 700px;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-container .logo {
+    width: 450px;
+    margin-bottom: 20px;
+}
+
+.login-container h2 {
+    color: #0B1E51;
+    margin-bottom: 10px;
+}
+
+.login-container p {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.login-divider {
+    width: 100%;
+    margin: 30px 0;
+    border: none;
+    border-top: 1px solid #ccc;
+}
+
+.google-button{
+    background-color: #0B1E51;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 30px;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    width: 200px;
+}
+.register-button {
+    background-color: #1d4fd7;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 30px;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    width: 200px;
+}
+.google-button:hover
+{
+    background-color: #093a80;
+}
+
+.register-button:hover{
+    background-color: #1772f5;
+}
+
+.login-options {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.logout-button {
+    background-color: white;
+    color: #0B1E51;
+    border: 2px solid white;
+    border-radius: 24px;
+    font-size: 14px;
+    padding: 8px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.logout-button:hover {
+    background-color: #0B1E51;
+    color: white;
+}
+
+.form-button:hover,
+.google-button:hover,
+.register-button:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 13px;
+    display: block;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+
+.criteria {
+    list-style: none;
+    margin: 10px 0;
+    padding: 0;
+    font-size: 14px;
+}
+
+.criteria li::before {
+    content: "✖ ";
+    color: red;
+}
+
+.criteria li.valid::before {
+    content: "✔ ";
+    color: green;
+}
+
+.criteria li.valid {
+    color: green;
+}
+
+.criteria li.invalid {
+    color: red;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 13px;
+    margin-bottom: 10px;
+    display: block;
+}

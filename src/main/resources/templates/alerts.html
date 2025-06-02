@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Alertas Recentes</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+<div class="layout-wrapper">
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <div class="container">
+        <h2 class="text-center">Alertas Recentes</h2>
+
+        <div class="btn-group" style="margin-bottom: 20px;">
+            <button type="button" onclick="deleteOldAlerts()">Excluir alertas com mais de 7 dias</button>
+            <button type="button" onclick="openCreateModal()">Novo Alerta</button>
+        </div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Data e Hora</th>
+                <th>Evento</th>
+                <th>Mensagem</th>
+                <th>Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="alert : ${alertsPage.content}">
+                <td th:text="${alert.formattedDate}"></td>
+                <td th:text="${alert.event}"></td>
+                <td th:text="${alert.message}"></td>
+                <td class="actions-cell">
+                    <button class="delete-button" th:attr="data-id=${alert.id}" onclick="deleteAlert(this)">Excluir</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p th:if="${alertsPage == null or alertsPage.empty}">Nenhum alerta encontrado.</p>
+        <div class="pagination">
+            <a th:if="${!alertsPage.first}" th:href="@{/alerts(page=0)}">Primeira</a>
+            <a th:if="${alertsPage.hasPrevious()}" th:href="@{/alerts(page=${alertsPage.number - 1})}">Anterior</a>
+            <span th:text="'Página ' + (${alertsPage.number + 1}) + ' de ' + ${alertsPage.totalPages}"></span>
+            <a th:if="${alertsPage.hasNext()}" th:href="@{/alerts(page=${alertsPage.number + 1})}">Próxima</a>
+            <a th:if="${!alertsPage.last}" th:href="@{/alerts(page=${alertsPage.totalPages - 1})}">Última</a>
+        </div>
+    </div>
+
+    <!-- Modal de Criação -->
+    <div id="alertModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="modalTitle">Novo Alerta</h3>
+            <form id="alertForm">
+                <label for="eventInput">Buscar Evento:</label>
+                <input type="text" id="eventInput" placeholder="Digite para filtrar eventos..." oninput="filterEvents()">
+
+                <label for="eventSelect">Evento:</label>
+                <select id="eventSelect" required></select>
+
+                <label for="message">Mensagem:</label>
+                <input type="text" id="message" required>
+
+                <label for="sentAt">Data e Hora:</label>
+                <input type="datetime-local" id="sentAt">
+
+                <div class="btn-group">
+                    <button type="submit">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</div>
+
+<script>
+    const modal = document.getElementById("alertModal");
+    const form = document.getElementById("alertForm");
+    let allEvents = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+        fetch("/api/events/list")
+            .then(res => res.json())
+            .then(data => {
+                allEvents = data;
+                renderEventOptions(data);
+            });
+    });
+
+    function renderEventOptions(list) {
+        const select = document.getElementById("eventSelect");
+        select.innerHTML = "";
+        list.forEach(event => {
+            const rawDate = new Date(event.eventDate);
+            const formattedDate = `${String(rawDate.getDate()).padStart(2, '0')}/${String(rawDate.getMonth() + 1).padStart(2, '0')}/${rawDate.getFullYear()}`;
+
+            const option = document.createElement("option");
+            option.value = event.id;
+            option.textContent = `${event.eventType} - ${event.description} (${formattedDate})`;
+            option.setAttribute("data-search", `${event.eventType.toLowerCase()} ${event.description.toLowerCase()} ${formattedDate}`);
+            select.appendChild(option);
+        });
+    }
+
+    function filterEvents() {
+        const input = document.getElementById("eventInput").value.toLowerCase();
+        const filtered = allEvents.filter(event => {
+            const rawDate = new Date(event.eventDate);
+            const formattedDate = `${String(rawDate.getDate()).padStart(2, '0')}/${String(rawDate.getMonth() + 1).padStart(2, '0')}/${rawDate.getFullYear()}`;
+            return (
+                event.eventType.toLowerCase().includes(input) ||
+                event.description.toLowerCase().includes(input) ||
+                formattedDate.includes(input)
+            );
+        });
+        renderEventOptions(filtered);
+    }
+
+    function openCreateModal() {
+        document.getElementById("alertForm").reset();
+        document.getElementById("modalTitle").textContent = "Novo Alerta";
+        document.getElementById("alertModal").style.display = "flex";
+    }
+
+    function closeModal() {
+        document.getElementById("alertModal").style.display = "none";
+    }
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const sentAtInput = document.getElementById("sentAt").value;
+        const payload = {
+            eventId: parseInt(document.getElementById("eventSelect").value),
+            message: document.getElementById("message").value,
+            sentAt: sentAtInput ? sentAtInput : null
+        };
+
+        fetch('/api/alerts', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        }).then(res => {
+            if (res.ok) {
+                alert("Alerta criado com sucesso!");
+                location.reload();
+            } else {
+                return res.text().then(msg => alert("Erro: " + msg));
+            }
+        });
+    });
+
+    function deleteAlert(button) {
+        const id = button.getAttribute("data-id");
+        if (confirm("Deseja excluir este alerta?")) {
+            fetch('/api/alerts/' + id, {method: 'DELETE'})
+                .then(res => {
+                    if (res.ok) {
+                        alert("Alerta excluído com sucesso!");
+                        location.reload();
+                    } else {
+                        return res.text().then(msg => alert("Erro: " + msg));
+                    }
+                });
+        }
+    }
+
+    function deleteOldAlerts() {
+        if (confirm("Deseja excluir TODOS os alertas com mais de 7 dias?")) {
+            fetch('/api/alerts/older-than-7-days', {method: 'DELETE'})
+                .then(res => {
+                    if (res.ok) {
+                        alert("Alertas antigos excluídos com sucesso!");
+                        location.reload();
+                    } else {
+                        return res.text().then(msg => alert("Erro: " + msg));
+                    }
+                });
+        }
+    }
+
+    window.onclick = function (event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    };
+</script>
+
+</body>
+</html>

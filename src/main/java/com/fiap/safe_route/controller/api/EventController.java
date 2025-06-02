@@ -1,4 +1,4 @@
-package com.fiap.safe_route.controller;
+package com.fiap.safe_route.controller.api;
 
 import com.fiap.safe_route.dto.event.EventRequest;
 import com.fiap.safe_route.dto.event.EventResponse;
@@ -11,6 +11,8 @@ import org.springframework.data.domain.*;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/events")
@@ -30,7 +32,12 @@ public class EventController {
             @ApiResponse(responseCode = "404", description = "Event not found")
     })
     public ResponseEntity<EventResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.findById(id));
+        try {
+            EventResponse event = service.findById(id);
+            return ResponseEntity.ok(event);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping
@@ -52,7 +59,11 @@ public class EventController {
             @ApiResponse(responseCode = "400", description = "Invalid request data")
     })
     public ResponseEntity<EventResponse> create(@RequestBody @Valid EventRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @Operation(summary = "Update an event by ID")
@@ -79,7 +90,26 @@ public class EventController {
             @ApiResponse(responseCode = "404", description = "Event not found")
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
-        return ResponseEntity.ok().build();
+        try {
+            service.delete(id);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
+
+    @GetMapping("/names")
+    public ResponseEntity<List<String>> getAllResourceTypeNames() {
+        List<String> allNames = service.getAll();
+        return ResponseEntity.ok(allNames);
+    }
+
+    @GetMapping("/list")
+    @Operation(summary = "List all events (flat list)")
+    public ResponseEntity<List<EventResponse>> listAll() {
+        List<EventResponse> events = service.findAllFlat();
+        if (events.isEmpty()) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(events);
+    }
+
 }

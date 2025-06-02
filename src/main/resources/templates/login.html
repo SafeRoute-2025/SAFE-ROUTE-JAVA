@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" type="text/css" href="../static/css/styles.css"/>
+    <meta charset="UTF-8">
+    <title>Login - SafeRoute</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="login-wrapper">
+    <div class="login-container">
+        <img src="/images/saferoute-logo.png" alt="Logo SafeRoute" class="logo"/>
+        <p>Faça login para acessar o sistema.</p>
+
+        <form th:action="@{/login}" method="post" class="login-form">
+            <input type="email" name="username" placeholder="Email" required class="form-field">
+            <input type="password" name="password" placeholder="Senha" required class="form-field">
+            <div class="login-options">
+                <a class="google-button" th:href="@{/oauth2/authorization/google}">
+                    Login com Google
+                </a>
+                <button type="submit" class="form-button">Entrar</button>
+            </div>
+        </form>
+
+        <hr class="login-divider">
+        <p class="register-link">Não tem uma conta? <a href="/register" class="register-button">Registrar</a></p>
+
+    </div>
+</div>
+</body>
+</html>

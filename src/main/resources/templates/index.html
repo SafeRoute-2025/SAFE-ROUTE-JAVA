@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SafeRoute - Página Inicial</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="layout-wrapper">
+    <!-- Header Fragment -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main>
+        <section class="welcome">
+            <img src="/images/saferoute-logo.png" alt="Logo SafeRoute" class="logo"/>
+            <h1>Bem-vindo ao SafeRoute</h1>
+            <p>Monitore riscos, proteja vidas. Sua rota segura começa aqui.</p>
+            <a href="/events" class="button">Ver eventos</a>
+
+            <div class="dashboard-links">
+                <a href="/safe-places" class="card-link">Locais Seguros</a>
+                <a href="/resources" class="card-link">Recursos</a>
+                <a href="/alerts" class="card-link">Alertas</a>
+            </div>
+        </section>
+
+        <section class="alerts">
+            <h2>Últimos alertas</h2>
+            <div th:if="${alerts != null and !alerts.isEmpty()}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Tipo de Evento</th>
+                        <th>Mensagem</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="alert : ${alerts}">
+                        <td th:text="${#temporals.format(alert.sentAt, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${alert.event}"></td>
+                        <td th:text="${alert.message}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p th:if="${alerts == null or alerts.isEmpty()}">Nenhum alerta recente.</p>
+        </section>
+
+        <div class="tip">
+            🔒 <strong>Dica de Segurança:</strong> Tenha sempre um kit de primeiros socorros acessível em locais de alto risco.
+        </div>
+    </main>
+
+    <!-- Footer Fragment -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</div>
+</body>
+</html>

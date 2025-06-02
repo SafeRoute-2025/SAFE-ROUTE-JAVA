@@ -5,10 +5,12 @@ import com.fiap.safe_route.dto.user.UserResponse;
 import com.fiap.safe_route.exception.EmailJaCadastradoException;
 import com.fiap.safe_route.model.User;
 import com.fiap.safe_route.repository.UserRepository;
+import jakarta.annotation.PostConstruct;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -73,6 +75,7 @@ public class UserService {
         return repository.findAll(pageable).map(this::toResponse);
     }
 
+    @Transactional
     public UserResponse update(Long id, UserRequest request) {
         User user = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));

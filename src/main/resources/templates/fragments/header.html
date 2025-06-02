@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SafeRoute</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<header>
+    <nav>
+        <a href="/" class="logo">SafeRoute</a>
+        <a th:href="@{/events}">Eventos</a>
+        <a th:href="@{/alerts}">Alertas</a>
+        <a th:href="@{/safe-places}">Locais Seguros</a>
+        <a th:href="@{/resources}">Recursos</a>
+
+        <!-- Bloco de autenticação -->
+        <span style="margin-left:auto; display:flex; align-items:center; gap:12px;">
+            <th:block th:if="${#authorization.expression('isAuthenticated()')}">
+                <span th:text="${userName}" style="color: white; font-weight: bold;">Usuário</span>
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" class="logout-button">Logout</button>
+                </form>
+            </th:block>
+
+            <th:block th:unless="${#authorization.expression('isAuthenticated()')}">
+                <a th:href="@{/login}" class="login-button">Login</a>
+            </th:block>
+        </span>
+    </nav>
+</header>
+</body>
+</html>
