@@ -20,7 +20,7 @@ public class AiService {
     }
     public String gerarDicaSeguranca(Locale locale) {
         String prompt = locale.getLanguage().equals("pt")
-                ? "Give me a quick safety tip for natural disaster situations"
+                ? "Me dê uma dica rápida de segurança para situações de desastres naturais"
                 : "Give me a quick safety tip for natural disaster situations";
 
         return model.generate(prompt);
