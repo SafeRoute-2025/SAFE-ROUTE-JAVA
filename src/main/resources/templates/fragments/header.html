@@ -8,25 +8,26 @@
 <body>
 <header>
     <nav>
-        <a href="/" class="logo">SafeRoute</a>
-        <a th:href="@{/events}">Eventos</a>
-        <a th:href="@{/alerts}">Alertas</a>
-        <a th:href="@{/safe-places}">Locais Seguros</a>
-        <a th:href="@{/resources}">Recursos</a>
+        <a href="/" class="logo" th:text="#{header.logo}">SafeRoute</a>
+        <a th:href="@{/events}" th:text="#{header.events}">Eventos</a>
+        <a th:href="@{/alerts}" th:text="#{header.alerts}">Alertas</a>
+        <a th:href="@{/safe-places}" th:text="#{header.safeplaces}">Locais Seguros</a>
+        <a th:href="@{/resources}" th:text="#{header.resources}">Recursos</a>
 
         <!-- Bloco de autenticação -->
         <span style="margin-left:auto; display:flex; align-items:center; gap:12px;">
-            <th:block th:if="${#authorization.expression('isAuthenticated()')}">
-                <span th:text="${userName}" style="color: white; font-weight: bold;">Usuário</span>
-                <form th:action="@{/logout}" method="post" style="display:inline;">
-                    <button type="submit" class="logout-button">Logout</button>
-                </form>
-            </th:block>
+    <th:block th:if="${#authorization.expression('isAuthenticated()')}">
+        <span th:text="${userName}" style="color: white; font-weight: bold;">Usuário</span>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-button" th:text="#{header.logout}">Logout</button>
+        </form>
+    </th:block>
 
-            <th:block th:unless="${#authorization.expression('isAuthenticated()')}">
-                <a th:href="@{/login}" class="login-button">Login</a>
-            </th:block>
+    <th:block th:unless="${#authorization.expression('isAuthenticated()')}">
+        <a th:href="@{/login}" class="login-button" th:text="#{header.login}">Login</a>
+    </th:block>
         </span>
+
     </nav>
 </header>
 </body>

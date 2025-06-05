@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <head>
     <meta charset="UTF-8">
-    <title>SafeRoute - Página Inicial</title>
+    <title th:text="#{home.title}">SafeRoute - Página Inicial</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
@@ -13,26 +13,26 @@
     <main>
         <section class="welcome">
             <img src="/images/saferoute-logo.png" alt="Logo SafeRoute" class="logo"/>
-            <h1>Bem-vindo ao SafeRoute</h1>
-            <p>Monitore riscos, proteja vidas. Sua rota segura começa aqui.</p>
-            <a href="/events" class="button">Ver eventos</a>
+            <h1 th:text="#{home.welcome}">Bem-vindo ao SafeRoute</h1>
+            <p th:text="#{home.subtitle}">Monitore riscos, proteja vidas. Sua rota segura começa aqui.</p>
+            <a href="/events" class="button" th:text="#{home.button.viewEvents}">Ver eventos</a>
 
             <div class="dashboard-links">
-                <a href="/safe-places" class="card-link">Locais Seguros</a>
-                <a href="/resources" class="card-link">Recursos</a>
-                <a href="/alerts" class="card-link">Alertas</a>
+                <a href="/safe-places" class="card-link" th:text="#{home.card.safePlaces}">Locais Seguros</a>
+                <a href="/resources" class="card-link" th:text="#{home.card.resources}">Recursos</a>
+                <a href="/alerts" class="card-link" th:text="#{home.card.alerts}">Alertas</a>
             </div>
         </section>
 
         <section class="alerts">
-            <h2>Últimos alertas</h2>
+            <h2 th:text="#{home.latestAlerts}">Últimos alertas</h2>
             <div th:if="${alerts != null and !alerts.isEmpty()}">
                 <table>
                     <thead>
                     <tr>
-                        <th>Data</th>
-                        <th>Tipo de Evento</th>
-                        <th>Mensagem</th>
+                        <th th:text="#{home.table.date}">Data</th>
+                        <th th:text="#{home.table.eventType}">Tipo de Evento</th>
+                        <th th:text="#{home.table.message}">Mensagem</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -44,13 +44,13 @@
                     </tbody>
                 </table>
             </div>
-            <p th:if="${alerts == null or alerts.isEmpty()}">Nenhum alerta recente.</p>
+            <p th:if="${alerts == null or alerts.isEmpty()}" th:text="#{home.noRecentAlerts}">Nenhum alerta recente.</p>
         </section>
 
         <div class="ai-tip">
-            <h2>Dica de Segurança por IA</h2>
-            <p id="dica" style="font-style: italic; color: #0077cc;" th:text="${mensagem}">Carregando dica...</p>
-            <button onclick="gerarNovaDica()">Gerar nova dica</button>
+            <h2 th:text="#{home.aiTip.title}">Dica de Segurança por IA</h2>
+            <p id="dica" style="font-style: italic; color: #0077cc;" th:text="${mensagem} ?: #{home.aiTip.loading}">Carregando dica...</p>
+            <button onclick="gerarNovaDica()" th:text="#{home.aiTip.button}">Gerar nova dica</button>
         </div>
     </main>
 

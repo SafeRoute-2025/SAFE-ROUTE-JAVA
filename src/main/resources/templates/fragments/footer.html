@@ -7,7 +7,12 @@
 </head>
 <body>
 <footer>
-    <p>&copy; 2025 SafeRoute - Todos os direitos reservados</p>
+    <p>&copy; 2025 SafeRoute - <span th:text="#{footer.copyright}"></span></p>
+    <p>
+        <a th:href="@{/change-language(lang='pt')}">🇧🇷 <span th:text="#{footer.language.pt}" style="color: white"></span></a> |
+        <a th:href="@{/change-language(lang='en')}">🇺🇸 <span th:text="#{footer.language.en}" style="color: white"></span></a>
+    </p>
 </footer>
+
 </body>
 </html>

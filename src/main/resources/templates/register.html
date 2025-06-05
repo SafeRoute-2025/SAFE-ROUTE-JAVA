@@ -1,52 +1,47 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <head>
     <meta charset="UTF-8">
-    <title>Cadastro - SafeRoute</title>
+    <title th:text="#{register.title}">Cadastro - SafeRoute</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
 <div class="login-wrapper">
     <div class="login-container">
         <img src="/images/saferoute-logo.png" alt="Logo SafeRoute" class="logo"/>
-        <h2>Crie sua conta</h2>
+        <h2 th:text="#{register.heading}">Crie sua conta</h2>
 
         <form th:action="@{/register}" th:object="${user}" method="post" class="login-form" id="registerForm">
-            <input type="text" th:field="*{name}" id="name" placeholder="Nome completo" class="form-field"/>
+            <input type="text" th:field="*{name}" id="name" th:placeholder="#{register.name}" class="form-field"/>
             <span id="nameError" class="error-message" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
 
-            <input type="email" th:field="*{email}" id="email" placeholder="Email" class="form-field"/>
-            <span id="emailError" class="error-message" th:if="${#fields.hasErrors('email')}"
-                  th:errors="*{email}"></span>
+            <input type="email" th:field="*{email}" id="email" th:placeholder="#{register.email}" class="form-field"/>
+            <span id="emailError" class="error-message" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
 
-            <input type="password" th:field="*{password}" id="password" placeholder="Senha" class="form-field"/>
-            <span id="passwordError" class="error-message" th:if="${#fields.hasErrors('password')}"
-                  th:errors="*{password}"></span>
+            <input type="password" th:field="*{password}" id="password" th:placeholder="#{register.password}" class="form-field"/>
+            <span id="passwordError" class="error-message" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
 
             <ul class="criteria" id="passwordCriteria">
-                <li id="minLength">Mínimo 8 caracteres</li>
-                <li id="uppercase">Ao menos 1 letra maiúscula</li>
-                <li id="lowercase">Ao menos 1 letra minúscula</li>
-                <li id="number">Ao menos 1 número</li>
-                <li id="specialChar">Ao menos 1 caractere especial</li>
-                <li id="noSpaces">Sem espaços</li>
+                <li id="minLength" th:text="#{register.criteria.minLength}">Mínimo 8 caracteres</li>
+                <li id="uppercase" th:text="#{register.criteria.uppercase}">Ao menos 1 letra maiúscula</li>
+                <li id="lowercase" th:text="#{register.criteria.lowercase}">Ao menos 1 letra minúscula</li>
+                <li id="number" th:text="#{register.criteria.number}">Ao menos 1 número</li>
+                <li id="specialChar" th:text="#{register.criteria.specialChar}">Ao menos 1 caractere especial</li>
+                <li id="noSpaces" th:text="#{register.criteria.noSpaces}">Sem espaços</li>
             </ul>
 
-            <input type="text" th:field="*{phone}" id="phone" placeholder="Telefone (apenas números)"
-                   class="form-field"/>
-            <span id="phoneError" class="error-message" th:if="${#fields.hasErrors('phone')}"
-                  th:errors="*{phone}"></span>
+            <input type="text" th:field="*{phone}" id="phone" th:placeholder="#{register.phone}" class="form-field"/>
+            <span id="phoneError" class="error-message" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></span>
 
             <div class="login-options" style="margin-top: 20px;">
-                <button type="submit" class="form-button">Registrar</button>
-                <a href="/login" class="google-button">Voltar ao Login</a>
+                <a href="/login" class="google-button" th:text="#{register.backToLogin}">Voltar ao Login</a>
+                <button type="submit" class="form-button" th:text="#{register.submit}">Registrar</button>
             </div>
         </form>
-
     </div>
 </div>
 
-<script>
+<script th:inline="javascript">
     const passwordInput = document.getElementById("password");
 
     const minLength = document.getElementById("minLength");

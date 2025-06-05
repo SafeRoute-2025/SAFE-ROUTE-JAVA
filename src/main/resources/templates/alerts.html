@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <head>
     <meta charset="UTF-8">
-    <title>Alertas Recentes</title>
+    <title th:text="#{alerts.title}">Alertas Recentes</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}"/>
 </head>
 <body>
@@ -10,20 +10,20 @@
     <div th:replace="~{fragments/header :: header}"></div>
 
     <div class="container">
-        <h2 class="text-center">Alertas Recentes</h2>
+        <h2 class="text-center" th:text="#{alerts.title}">Alertas Recentes</h2>
 
         <div class="btn-group" style="margin-bottom: 20px;">
-            <button type="button" onclick="deleteOldAlerts()">Excluir alertas com mais de 7 dias</button>
-            <button type="button" onclick="openCreateModal()">Novo Alerta</button>
+            <button type="button" onclick="deleteOldAlerts()" th:text="#{alerts.deleteOld}">Excluir alertas com mais de 7 dias</button>
+            <button type="button" onclick="openCreateModal()" th:text="#{alerts.new}">Novo Alerta</button>
         </div>
 
         <table>
             <thead>
             <tr>
-                <th>Data e Hora</th>
-                <th>Evento</th>
-                <th>Mensagem</th>
-                <th>Ações</th>
+                <th th:text="#{alerts.datetime}">Data e Hora</th>
+                <th th:text="#{alerts.event}">Evento</th>
+                <th th:text="#{alerts.message}">Mensagem</th>
+                <th th:text="#{alerts.actions}">Ações</th>
             </tr>
             </thead>
             <tbody>
@@ -32,19 +32,29 @@
                 <td th:text="${alert.event}"></td>
                 <td th:text="${alert.message}"></td>
                 <td class="actions-cell">
-                    <button class="delete-button" th:attr="data-id=${alert.id}" onclick="deleteAlert(this)">Excluir</button>
+                    <button class="delete-button"
+                            th:attr="data-id=${alert.id}"
+                            th:text="#{alerts.delete}"
+                            onclick="deleteAlert(this)">Excluir</button>
                 </td>
             </tr>
             </tbody>
         </table>
 
-        <p th:if="${alertsPage == null or alertsPage.empty}">Nenhum alerta encontrado.</p>
+        <p th:if="${alertsPage == null or alertsPage.empty}" th:text="#{alerts.empty}">Nenhum alerta encontrado.</p>
+
         <div class="pagination">
-            <a th:if="${!alertsPage.first}" th:href="@{/alerts(page=0)}">Primeira</a>
-            <a th:if="${alertsPage.hasPrevious()}" th:href="@{/alerts(page=${alertsPage.number - 1})}">Anterior</a>
-            <span th:text="'Página ' + (${alertsPage.number + 1}) + ' de ' + ${alertsPage.totalPages}"></span>
-            <a th:if="${alertsPage.hasNext()}" th:href="@{/alerts(page=${alertsPage.number + 1})}">Próxima</a>
-            <a th:if="${!alertsPage.last}" th:href="@{/alerts(page=${alertsPage.totalPages - 1})}">Última</a>
+            <a th:if="${!alertsPage.first}" th:href="@{/alerts(page=0)}" th:text="#{pagination.first}">Primeira</a>
+            <a th:if="${alertsPage.hasPrevious()}"
+               th:href="@{/alerts(page=${alertsPage.number - 1})}"
+               th:text="#{pagination.previous}">Anterior</a>
+            <span th:text="#{pagination.pageof(${alertsPage.number + 1}, ${alertsPage.totalPages})}">Página X de Y</span>
+            <a th:if="${alertsPage.hasNext()}"
+               th:href="@{/alerts(page=${alertsPage.number + 1})}"
+               th:text="#{pagination.next}">Próxima</a>
+            <a th:if="${!alertsPage.last}"
+               th:href="@{/alerts(page=${alertsPage.totalPages - 1})}"
+               th:text="#{pagination.last}">Última</a>
         </div>
     </div>
 
@@ -52,22 +62,23 @@
     <div id="alertModal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
-            <h3 id="modalTitle">Novo Alerta</h3>
+            <h3 id="modalTitle" th:text="#{alerts.new}">Novo Alerta</h3>
             <form id="alertForm">
-                <label for="eventInput">Buscar Evento:</label>
+                <label for="eventInput" th:text="#{alerts.searchEvent}">Buscar Evento:</label>
                 <input type="text" id="eventInput" placeholder="Digite para filtrar eventos..." oninput="filterEvents()">
 
-                <label for="eventSelect">Evento:</label>
+                <label for="eventSelect" th:text="#{alerts.eventSelect}">Evento:</label>
                 <select id="eventSelect" required></select>
 
-                <label for="message">Mensagem:</label>
+                <label for="message" th:text="#{alerts.messageInput}">Mensagem:</label>
                 <input type="text" id="message" required>
 
-                <label for="sentAt">Data e Hora:</label>
+                <label for="sentAt" th:text="#{alerts.sentAt}">Data e Hora:</label>
                 <input type="datetime-local" id="sentAt">
 
                 <div class="btn-group">
-                    <button type="submit">Salvar</button>
+                    <button type="button" onclick="closeModal()" th:text="#{form.cancel}">Cancelar</button>
+                    <button type="submit" th:text="#{form.save}">Salvar</button>
                 </div>
             </form>
         </div>
@@ -76,7 +87,7 @@
     <div th:replace="~{fragments/footer :: footer}"></div>
 </div>
 
-<script>
+<script th:inline="javascript">
     const modal = document.getElementById("alertModal");
     const form = document.getElementById("alertForm");
     let allEvents = [];
@@ -96,11 +107,10 @@
         list.forEach(event => {
             const rawDate = new Date(event.eventDate);
             const formattedDate = `${String(rawDate.getDate()).padStart(2, '0')}/${String(rawDate.getMonth() + 1).padStart(2, '0')}/${rawDate.getFullYear()}`;
-
             const option = document.createElement("option");
             option.value = event.id;
-            option.textContent = `${event.eventType} - ${event.description} (${formattedDate})`;
-            option.setAttribute("data-search", `${event.eventType.toLowerCase()} ${event.description.toLowerCase()} ${formattedDate}`);
+            option.textContent = `${event.eventType} - ${event.description || "Sem descrição"} (${formattedDate})`;
+            option.setAttribute("data-search", `${event.eventType.toLowerCase()} ${(event.description || "").toLowerCase()} ${formattedDate}`);
             select.appendChild(option);
         });
     }
@@ -112,7 +122,7 @@
             const formattedDate = `${String(rawDate.getDate()).padStart(2, '0')}/${String(rawDate.getMonth() + 1).padStart(2, '0')}/${rawDate.getFullYear()}`;
             return (
                 event.eventType.toLowerCase().includes(input) ||
-                event.description.toLowerCase().includes(input) ||
+                (event.description || "").toLowerCase().includes(input) ||
                 formattedDate.includes(input)
             );
         });
@@ -121,7 +131,7 @@
 
     function openCreateModal() {
         document.getElementById("alertForm").reset();
-        document.getElementById("modalTitle").textContent = "Novo Alerta";
+        document.getElementById("modalTitle").textContent = /*[[#{alerts.new}]]*/ "Novo Alerta";
         document.getElementById("alertModal").style.display = "flex";
     }
 
@@ -145,38 +155,38 @@
             body: JSON.stringify(payload)
         }).then(res => {
             if (res.ok) {
-                alert("Alerta criado com sucesso!");
+                alert(/*[[#{alerts.success.create}]]*/ "Alerta criado com sucesso!");
                 location.reload();
             } else {
-                return res.text().then(msg => alert("Erro: " + msg));
+                return res.text().then(msg => alert(/*[[#{alerts.error}]]*/ "Erro: " + msg));
             }
         });
     });
 
     function deleteAlert(button) {
         const id = button.getAttribute("data-id");
-        if (confirm("Deseja excluir este alerta?")) {
+        if (confirm(/*[[#{alerts.confirm.delete}]]*/ "Deseja excluir este alerta?")) {
             fetch('/api/alerts/' + id, {method: 'DELETE'})
                 .then(res => {
                     if (res.ok) {
-                        alert("Alerta excluído com sucesso!");
+                        alert(/*[[#{alerts.success.delete}]]*/ "Alerta excluído com sucesso!");
                         location.reload();
                     } else {
-                        return res.text().then(msg => alert("Erro: " + msg));
+                        return res.text().then(msg => alert(/*[[#{alerts.error}]]*/ "Erro: " + msg));
                     }
                 });
         }
     }
 
     function deleteOldAlerts() {
-        if (confirm("Deseja excluir TODOS os alertas com mais de 7 dias?")) {
+        if (confirm(/*[[#{alerts.confirm.deleteOld}]]*/ "Deseja excluir TODOS os alertas com mais de 7 dias?")) {
             fetch('/api/alerts/older-than-7-days', {method: 'DELETE'})
                 .then(res => {
                     if (res.ok) {
-                        alert("Alertas antigos excluídos com sucesso!");
+                        alert(/*[[#{alerts.success.deleteOld}]]*/ "Alertas antigos excluídos com sucesso!");
                         location.reload();
                     } else {
-                        return res.text().then(msg => alert("Erro: " + msg));
+                        return res.text().then(msg => alert(/*[[#{alerts.error}]]*/ "Erro: " + msg));
                     }
                 });
         }
@@ -188,6 +198,5 @@
         }
     };
 </script>
-
 </body>
 </html>

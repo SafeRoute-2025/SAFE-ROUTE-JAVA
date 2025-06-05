@@ -1,31 +1,28 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <head>
     <link rel="stylesheet" type="text/css" href="../static/css/styles.css"/>
     <meta charset="UTF-8">
-    <title>Login - SafeRoute</title>
+    <title th:text="#{login.title}">Login - SafeRoute</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
 <div class="login-wrapper">
     <div class="login-container">
         <img src="/images/saferoute-logo.png" alt="Logo SafeRoute" class="logo"/>
-        <p>Faça login para acessar o sistema.</p>
+        <p th:text="#{login.message}">Faça login para acessar o sistema.</p>
 
         <form th:action="@{/login}" method="post" class="login-form">
-            <input type="email" name="username" placeholder="Email" required class="form-field">
-            <input type="password" name="password" placeholder="Senha" required class="form-field">
+            <input type="email" name="username" th:placeholder="#{login.email}" required class="form-field">
+            <input type="password" name="password" th:placeholder="#{login.password}" required class="form-field">
             <div class="login-options">
-                <a class="google-button" th:href="@{/oauth2/authorization/google}">
-                    Login com Google
-                </a>
-                <button type="submit" class="form-button">Entrar</button>
+                <a class="google-button" th:href="@{/oauth2/authorization/google}" th:text="#{login.google}">Login com Google</a>
+                <button type="submit" class="form-button" th:text="#{login.submit}">Entrar</button>
             </div>
         </form>
 
         <hr class="login-divider">
-        <p class="register-link">Não tem uma conta? <a href="/register" class="register-button">Registrar</a></p>
-
+        <p class="register-link" th:text="#{login.noAccount}">Não tem uma conta? <a href="/register" class="register-button" th:text="#{login.register}">Registrar</a></p>
     </div>
 </div>
 </body>

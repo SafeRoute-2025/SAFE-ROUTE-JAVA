@@ -10,6 +10,8 @@ import com.fiap.safe_route.repository.AlertRepository;
 import com.fiap.safe_route.repository.EventRepository;
 import com.fiap.safe_route.repository.EventTypeRepository;
 import com.fiap.safe_route.repository.RiskLevelRepository;
+import com.fiap.safe_route.service.messaging.EventProducer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,18 +24,26 @@ import java.util.stream.Collectors;
 @Service
 public class EventService {
 
+    @Autowired
     private final EventRepository repository;
+    @Autowired
     private final EventTypeRepository eventTypeRepository;
+    @Autowired
     private final RiskLevelRepository riskLevelRepository;
+    @Autowired
     private final AlertRepository alertRepository;
+    @Autowired
+    private final EventProducer eventProducer;
     public EventService(EventRepository repository,
                         EventTypeRepository eventTypeRepository,
                         RiskLevelRepository riskLevelRepository,
-                        AlertRepository alertRepository) {
+                        AlertRepository alertRepository,
+                        EventProducer eventProducer) {
         this.repository = repository;
         this.eventTypeRepository = eventTypeRepository;
         this.riskLevelRepository = riskLevelRepository;
         this.alertRepository = alertRepository;
+        this.eventProducer = eventProducer;
     }
 
     public EventResponse create(EventRequest request) {
@@ -43,19 +53,20 @@ public class EventService {
         RiskLevel riskLevel = riskLevelRepository.findByName(request.riskLevel())
                 .orElseThrow(() -> new NotFoundException("RiskLevel not found: " + request.riskLevel()));
 
-        Date eventDate = request.eventDate() != null ? request.eventDate() : Date.from(LocalDateTime.now().atZone(java.time.ZoneId.systemDefault()).toInstant());
-        double latitude = request.latitude() != null ? request.latitude() : 0;
-        double longitude = request.longitude() != null ? request.longitude() : 0;
         Event event = Event.builder()
                 .eventType(eventType)
                 .description(request.description())
-                .eventDate(eventDate)
+                .eventDate(request.eventDate() != null ? request.eventDate() : new Date())
                 .riskLevel(riskLevel)
-                .latitude(latitude)
-                .longitude(longitude)
+                .latitude(request.latitude())
+                .longitude(request.longitude())
                 .build();
-        return toResponse(repository.save(event));
+        repository.save(event);
+        EventResponse response = toResponse(event);
+        eventProducer.sendEvent(response);
+        return response;
     }
+
 
     public EventResponse findById(Long id) {
         return repository.findById(id)
@@ -89,24 +100,32 @@ public class EventService {
 
     @Transactional
     public EventResponse update(Long id, EventRequest request) {
-        Event event = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Event not found"));
-
         EventType eventType = eventTypeRepository.findByName(request.eventType())
                 .orElseThrow(() -> new NotFoundException("EventType not found: " + request.eventType()));
 
         RiskLevel riskLevel = riskLevelRepository.findByName(request.riskLevel())
                 .orElseThrow(() -> new NotFoundException("RiskLevel not found: " + request.riskLevel()));
 
-        event.setEventType(eventType);
-        event.setDescription(request.description());
-        event.setEventDate(request.eventDate());
-        event.setRiskLevel(riskLevel);
-        event.setLatitude(request.latitude());
-        event.setLongitude(request.longitude());
+        if (!repository.existsById(id)) {
+            throw new NotFoundException("Event not found");
+        }
 
-        return toResponse(repository.save(event));
+        Event event = Event.builder()
+                .id(id)
+                .eventType(eventType)
+                .description(request.description())
+                .eventDate(request.eventDate() != null ? request.eventDate() : new Date())
+                .riskLevel(riskLevel)
+                .latitude(request.latitude())
+                .longitude(request.longitude())
+                .build();
+
+        repository.save(event);
+        EventResponse response = toResponse(event);
+        eventProducer.sendEvent(response);
+        return response;
     }
+
 
 
     public List<String> getAll() {
@@ -121,5 +140,44 @@ public class EventService {
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
+
+    public void saveOrUpdateFromMessage(EventResponse response) {
+        EventType eventType = eventTypeRepository.findByName(response.getEventType())
+                .orElseThrow(() -> new NotFoundException("EventType not found: " + response.getEventType()));
+
+        RiskLevel riskLevel = riskLevelRepository.findByName(response.getRiskLevel())
+                .orElseThrow(() -> new NotFoundException("RiskLevel not found: " + response.getRiskLevel()));
+
+        Event event = null;
+
+        if (response.getId() != null) {
+            event = repository.findById(response.getId()).orElse(null);
+            if (event != null) {
+                // Atualizar
+                event.setEventType(eventType);
+                event.setDescription(response.getDescription());
+                event.setEventDate(response.getEventDate());
+                event.setRiskLevel(riskLevel);
+                event.setLatitude(response.getLatitude());
+                event.setLongitude(response.getLongitude());
+            }
+        } else{
+            // Criar novo
+            event = Event.builder()
+                    .eventType(eventType)
+                    .description(response.getDescription())
+                    .eventDate(response.getEventDate())
+                    .riskLevel(riskLevel)
+                    .latitude(response.getLatitude())
+                    .longitude(response.getLongitude())
+                    .build();
+        }
+
+
+        repository.save(event);
+    }
+
+
+
 
 }

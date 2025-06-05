@@ -2,29 +2,29 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Eventos Cadastrados</title>
+    <title th:text="#{events.title}">Eventos Cadastrados</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}"/>
 </head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div class="container">
-    <h2>Eventos Cadastrados</h2>
+    <h2 th:text="#{events.title}">Eventos Cadastrados</h2>
     <div class="btn-group" style="margin-bottom: 20px;">
         <a></a>
-        <button type="button" onclick="openCreateModal()">Novo Evento</button>
+        <button type="button" onclick="openCreateModal()" th:text="#{events.new}">Novo Evento</button>
     </div>
     <table>
         <thead>
         <tr>
-            <th>ID</th>
-            <th>Tipo</th>
-            <th>Descrição</th>
-            <th>Data</th>
-            <th>Nível de Risco</th>
-            <th>Latitude</th>
-            <th>Longitude</th>
-            <th>Ações</th>
+            <th th:text="#{events.id}">ID</th>
+            <th th:text="#{events.type}">Tipo</th>
+            <th th:text="#{events.description}">Descrição</th>
+            <th th:text="#{events.date}">Data</th>
+            <th th:text="#{events.riskLevel}">Nível de Risco</th>
+            <th th:text="#{events.latitude}">Latitude</th>
+            <th th:text="#{events.longitude}">Longitude</th>
+            <th th:text="#{events.actions}">Ações</th>
         </tr>
         </thead>
         <tbody>
@@ -37,44 +37,42 @@
             <td th:text="${event.latitude}"></td>
             <td th:text="${event.longitude}"></td>
             <td class="actions-cell">
-                <button class="edit-button" th:attr="data-id=${event.id}" onclick="openEditModal(this)">Editar</button>
-                <button class="delete-button" th:attr="data-id=${event.id}" onclick="deleteEvent(this)">Excluir</button>
-                <button th:onclick="|openInMaps(${event.latitude}, ${event.longitude})|">
-                    Ver no Mapa
-                </button>
+                <button class="edit-button" th:attr="data-id=${event.id}" onclick="openEditModal(this)" th:text="#{events.edit}">Editar</button>
+                <button class="delete-button" th:attr="data-id=${event.id}" onclick="deleteEvent(this)" th:text="#{events.delete}">Excluir</button>
+                <button th:onclick="|openInMaps(${event.latitude}, ${event.longitude})|" th:text="#{events.viewOnMap}">Ver no Mapa</button>
             </td>
         </tr>
         </tbody>
     </table>
 
     <div class="pagination">
-        <a th:if="${eventsPage.hasPrevious()}" th:href="@{/events(page=${eventsPage.number - 1})}">Anterior</a>
-        <span th:text="'Página ' + (${eventsPage.number} + 1) + ' de ' + ${eventsPage.totalPages}"></span>
-        <a th:if="${eventsPage.hasNext()}" th:href="@{/events(page=${eventsPage.number + 1})}">Próxima</a>
+        <a th:if="${eventsPage.hasPrevious()}" th:href="@{/events(page=${eventsPage.number - 1})}" th:text="#{pagination.previous}">Anterior</a>
+        <span th:text="#{pagination.pageof(${eventsPage.number + 1}, ${eventsPage.totalPages})}">Página X de Y</span>
+        <a th:if="${eventsPage.hasNext()}" th:href="@{/events(page=${eventsPage.number + 1})}" th:text="#{pagination.next}">Próxima</a>
     </div>
 </div>
 
 <!-- Modal de Edição -->
 <div id="editModal" class="modal hide">
     <div class="modal-content">
-        <h3>Editar Evento</h3>
+        <h3 th:text="#{events.edit}">Editar Evento</h3>
         <form id="editForm">
             <input type="hidden" id="editEventId">
-            <label for="editEventType">Tipo:</label>
+            <label for="editEventType" th:text="#{events.type}">Tipo:</label>
             <input type="text" id="editEventType"/>
-            <label for="editDescription">Descrição:</label>
+            <label for="editDescription" th:text="#{events.description}">Descrição:</label>
             <input type="text" id="editDescription"/>
-            <label for="editEventDate">Data:</label>
+            <label for="editEventDate" th:text="#{events.date}">Data:</label>
             <input type="datetime-local" id="editEventDate"/>
-            <label for="editRiskLevel">Nível de Risco:</label>
+            <label for="editRiskLevel" th:text="#{events.riskLevel}">Nível de Risco:</label>
             <input type="text" id="editRiskLevel"/>
-            <label for="editLatitude">Latitude:</label>
+            <label for="editLatitude" th:text="#{events.latitude}">Latitude:</label>
             <input type="number" step="any" id="editLatitude"/>
-            <label for="editLongitude">Longitude:</label>
+            <label for="editLongitude" th:text="#{events.longitude}">Longitude:</label>
             <input type="number" step="any" id="editLongitude"/>
             <div class="btn-group">
-                <button type="button" onclick="saveEdit()">Salvar</button>
-                <button type="button" onclick="closeEditModal()">Cancelar</button>
+                <button type="button" onclick="closeEditModal()" th:text="#{form.cancel}">Cancelar</button>
+                <button type="button" onclick="saveEdit()" th:text="#{form.save}">Salvar</button>
             </div>
         </form>
     </div>
@@ -84,25 +82,25 @@
 <div id="createModal" class="modal" style="display:none;">
     <div class="modal-content">
         <span class="close" onclick="closeCreateModal()">&times;</span>
-        <h3 id="createModalTitle">Novo Evento</h3>
+        <h3 id="createModalTitle" th:text="#{events.new}">Novo Evento</h3>
         <form id="createForm">
-            <label for="eventTypeInput">Buscar Tipo de Evento:</label>
+            <label for="eventTypeInput" th:text="#{events.searchType}">Buscar Tipo de Evento:</label>
             <input type="text" id="eventTypeInput" placeholder="Digite para filtrar..." oninput="filterEventTypes()"/>
-            <label for="eventType">Tipo de Evento:</label>
+            <label for="eventType" th:text="#{events.typeLabel}">Tipo de Evento:</label>
             <select id="eventType" required></select>
-            <label for="createDescription">Descrição:</label>
+            <label for="createDescription" th:text="#{events.description}">Descrição:</label>
             <input type="text" id="createDescription">
-            <label for="createEventDate">Data:</label>
+            <label for="createEventDate" th:text="#{events.date}">Data:</label>
             <input type="datetime-local" id="createEventDate">
-            <label for="riskLevel">Nível de Risco:</label>
+            <label for="riskLevel" th:text="#{events.riskLevel}">Nível de Risco:</label>
             <select id="riskLevel" required></select>
-            <label for="createLatitude">Latitude:</label>
+            <label for="createLatitude" th:text="#{events.latitude}">Latitude:</label>
             <input type="number" step="any" id="createLatitude">
-            <label for="createLongitude">Longitude:</label>
+            <label for="createLongitude" th:text="#{events.longitude}">Longitude:</label>
             <input type="number" step="any" id="createLongitude">
             <div class="btn-group">
-                <button type="button" onclick="closeCreateModal()">Cancelar</button>
-                <button type="submit">Salvar</button>
+                <button type="button" onclick="closeCreateModal()" th:text="#{form.cancel}">Cancelar</button>
+                <button type="submit" th:text="#{form.save}">Salvar</button>
             </div>
         </form>
     </div>
@@ -110,7 +108,7 @@
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 
-<script>
+<script th:inline="javascript">
     let allEventTypes = [];
     let allRiskLevels = [];
 
@@ -120,7 +118,7 @@
     function openCreateModal() {
         try {
             document.getElementById("createForm").reset();
-            document.getElementById("createModalTitle").textContent = "Novo Evento";
+            document.getElementById("createModalTitle").textContent = /*[[#{events.new}]]*/ "Novo Evento";
             document.getElementById("createModal").style.display = "flex";
 
             fetch("/api/event-types/list")
@@ -166,10 +164,10 @@
         })
             .then(res => {
                 if (res.ok) {
-                    alert('Evento criado com sucesso!');
+                    alert(/*[[#{events.success.create}]]*/ 'Evento criado com sucesso!');
                     location.reload();
                 } else {
-                    return res.text().then(msg => alert("Erro: " + msg));
+                    return res.text().then(msg => alert(/*[[#{events.error}]]*/ "Erro: " + msg));
                 }
             });
     });
@@ -242,10 +240,10 @@
         })
             .then(res => {
                 if (res.ok) {
-                    alert('Evento atualizado com sucesso');
+                    alert(/*[[#{events.success.update}]]*/ 'Evento atualizado com sucesso');
                     location.reload();
                 } else {
-                    return res.text().then(msg => alert("Erro: " + msg));
+                    return res.text().then(msg => alert(/*[[#{events.error}]]*/ "Erro: " + msg));
                 }
             });
     }
@@ -253,14 +251,14 @@
     function deleteEvent(button) {
         const id = button.getAttribute("data-id");
 
-        if (confirm("Deseja excluir este evento?")) {
+        if (confirm(/*[[#{events.confirm.delete}]]*/ "Deseja excluir este evento?")) {
             fetch('/api/events/' + id, {method: 'DELETE'})
                 .then(res => {
                     if (res.ok) {
-                        alert('Evento excluído');
+                        alert(/*[[#{events.success.delete}]]*/ 'Evento excluído');
                         location.reload();
                     } else {
-                        return res.text().then(msg => alert("Erro: " + msg));
+                        return res.text().then(msg => alert(/*[[#{events.error}]]*/ "Erro: " + msg));
                     }
                 });
         }
@@ -274,11 +272,11 @@
             closeEditModal();
         }
     };
+
     function openInMaps(lat, lng) {
         const url = `https://www.google.com/maps?q=${lat},${lng}`;
         window.open(url, '_blank');
     }
-
 </script>
 </body>
 </html>

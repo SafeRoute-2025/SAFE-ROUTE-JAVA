@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <head>
     <meta charset="UTF-8">
-    <title>Recursos por Local Seguro</title>
+    <title th:text="#{resources.title}">Recursos por Local Seguro</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}"/>
 </head>
 <body>
@@ -10,28 +10,28 @@
     <div th:replace="~{fragments/header :: header}"></div>
 
     <div class="container">
-        <h2 class="text-center">Gerenciar Recursos</h2>
+        <h2 class="text-center" th:text="#{resources.manage}">Gerenciar Recursos</h2>
 
         <form id="selectForm" class="container-resource" method="get" action="/resources" style="margin-bottom: 20px;">
-            <label for="safePlaceSelect">Selecione o Local Seguro:</label>
+            <label for="safePlaceSelect" th:text="#{resources.selectLabel}">Selecione o Local Seguro:</label>
             <select id="safePlaceSelect" name="safePlaceId" onchange="document.getElementById('selectForm').submit()" required>
-                <option value="">-- Escolha um local --</option>
+                <option value="" th:text="#{resources.chooseOption}">-- Escolha um local --</option>
                 <option th:each="place : ${safePlaces}" th:value="${place.id}"
                         th:text="${place.name}" th:selected="${place.id == safePlaceId}"></option>
             </select>
         </form>
 
         <div class="btn-group text-center" style="margin-bottom: 20px;" th:if="${safePlaceId != null}">
-            <a th:href="@{/safe-places}" class="cancel-button">Voltar</a>
-            <button type="button" onclick="openCreateResourceModal()">Novo Recurso</button>
+            <a th:href="@{/safe-places}" class="cancel-button" th:text="#{resources.back}">Voltar</a>
+            <button type="button" onclick="openCreateResourceModal()" th:text="#{resources.new}">Novo Recurso</button>
         </div>
 
         <table th:if="${safePlaceId != null}" style="margin: 0 auto;">
             <thead>
             <tr>
-                <th>Tipo</th>
-                <th>Quantidade</th>
-                <th>Ações</th>
+                <th th:text="#{resources.type}">Tipo</th>
+                <th th:text="#{resources.quantity}">Quantidade</th>
+                <th th:text="#{resources.actions}">Ações</th>
             </tr>
             </thead>
             <tbody>
@@ -39,23 +39,23 @@
                 <td th:text="${res.resourceType}"></td>
                 <td th:text="${res.availableQuantity}"></td>
                 <td class="actions-cell">
-                    <button th:attr="onclick=|openEditResourceModal(${res.id})|">Editar</button>
-                    <button class="delete-button" th:attr="data-id=${res.id}" onclick="deleteResource(this)">Excluir</button>
+                    <button th:attr="onclick=|openEditResourceModal(${res.id})|" th:text="#{resources.edit}">Editar</button>
+                    <button class="delete-button" th:attr="data-id=${res.id}" onclick="deleteResource(this)" th:text="#{resources.delete}">Excluir</button>
                 </td>
             </tr>
             </tbody>
         </table>
 
-        <p th:if="${safePlaceId != null and (resourcesPage == null or resourcesPage.empty)}" class="text-center">Nenhum recurso encontrado para este local.</p>
+        <p th:if="${safePlaceId != null and (resourcesPage == null or resourcesPage.empty)}" class="text-center" th:text="#{resources.none}">Nenhum recurso encontrado para este local.</p>
 
         <div class="pagination" th:if="${resourcesPage != null}">
-            <a th:if="${!resourcesPage.first}" th:href="@{/resources(safePlaceId=${safePlaceId}, page=0)}">Primeira</a>
-            <a th:if="${resourcesPage.hasPrevious()}" th:href="@{/resources(safePlaceId=${safePlaceId}, page=${resourcesPage.number - 1})}">Anterior</a>
+            <a th:if="${!resourcesPage.first}" th:href="@{/resources(safePlaceId=${safePlaceId}, page=0)}" th:text="#{pagination.first}">Primeira</a>
+            <a th:if="${resourcesPage.hasPrevious()}" th:href="@{/resources(safePlaceId=${safePlaceId}, page=${resourcesPage.number - 1})}" th:text="#{pagination.previous}">Anterior</a>
 
-            <span th:text="'Página ' + (${resourcesPage.number + 1}) + ' de ' + ${resourcesPage.totalPages}"></span>
+            <span th:text="#{pagination.pageof(${resourcesPage.number + 1}, ${resourcesPage.totalPages})}">Página X de Y</span>
 
-            <a th:if="${resourcesPage.hasNext()}" th:href="@{/resources(safePlaceId=${safePlaceId}, page=${resourcesPage.number + 1})}">Próxima</a>
-            <a th:if="${!resourcesPage.last}" th:href="@{/resources(safePlaceId=${safePlaceId}, page=${resourcesPage.totalPages - 1})}">Última</a>
+            <a th:if="${resourcesPage.hasNext()}" th:href="@{/resources(safePlaceId=${safePlaceId}, page=${resourcesPage.number + 1})}" th:text="#{pagination.next}">Próxima</a>
+            <a th:if="${!resourcesPage.last}" th:href="@{/resources(safePlaceId=${safePlaceId}, page=${resourcesPage.totalPages - 1})}" th:text="#{pagination.last}">Última</a>
         </div>
     </div>
 
@@ -63,20 +63,21 @@
     <div id="resourceModal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="close" onclick="closeResourceModal()">&times;</span>
-            <h3 id="resourceModalTitle">Novo Recurso</h3>
+            <h3 id="resourceModalTitle" th:text="#{resources.new}">Novo Recurso</h3>
             <form id="resourceForm">
                 <input type="hidden" id="resourceId">
-                <label for="resourceTypeInput">Buscar Tipo:</label>
-                <input type="text" id="resourceTypeInput" placeholder="Digite para filtrar tipos..." oninput="filterResourceTypes()">
+                <label for="resourceTypeInput" th:text="#{resources.searchType}">Buscar Tipo:</label>
+                <input type="text" id="resourceTypeInput" th:placeholder="#{resources.filterType}" oninput="filterResourceTypes()">
 
-                <label for="resourceTypeSelect">Tipo:</label>
+                <label for="resourceTypeSelect" th:text="#{resources.type}">Tipo:</label>
                 <select id="resourceTypeSelect" required></select>
 
-                <label for="resourceQuantity">Quantidade:</label>
+                <label for="resourceQuantity" th:text="#{resources.quantity}">Quantidade:</label>
                 <input type="number" id="resourceQuantity" required>
 
                 <div class="btn-group">
-                    <button type="submit">Salvar</button>
+                    <button type="button" onclick="closeResourceModal()" th:text="#{resources.cancel}">Cancelar</button>
+                    <button type="submit" th:text="#{resources.save}">Salvar</button>
                 </div>
             </form>
         </div>
@@ -85,7 +86,7 @@
     <div th:replace="~{fragments/footer :: footer}"></div>
 </div>
 
-<script>
+<script th:inline="javascript">
     const safePlaceId = [[${safePlaceId}]];
     let allResourceTypes = [];
 
@@ -112,7 +113,7 @@
     function openCreateResourceModal() {
         document.getElementById("resourceForm").reset();
         document.getElementById("resourceId").value = "";
-        document.getElementById("resourceModalTitle").textContent = "Novo Recurso";
+        document.getElementById("resourceModalTitle").textContent = /*[[#{resources.new}]]*/ "Novo Recurso";
         document.getElementById("resourceModal").style.display = "flex";
     }
 
@@ -122,7 +123,7 @@
             .then(data => {
                 document.getElementById("resourceId").value = data.id;
                 document.getElementById("resourceQuantity").value = data.availableQuantity;
-                document.getElementById("resourceModalTitle").textContent = "Editar Recurso";
+                document.getElementById("resourceModalTitle").textContent = /*[[#{resources.edit}]]*/ "Editar Recurso";
                 const match = allResourceTypes.find(t => t.name === data.resourceType);
                 if (match) document.getElementById("resourceTypeSelect").value = match.id;
                 document.getElementById("resourceModal").style.display = "flex";
@@ -151,10 +152,10 @@
             body: JSON.stringify(payload)
         }).then(res => {
             if (res.ok) {
-                alert("Recurso salvo com sucesso!");
+                alert(/*[[#{resources.success}]]*/ "Recurso salvo com sucesso!");
                 location.reload();
             } else {
-                return res.text().then(msg => alert("Erro: " + msg));
+                return res.text().then(msg => alert(/*[[#{resources.error}]]*/ "Erro: " + msg));
             }
         });
     });
@@ -163,7 +164,7 @@
         const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
         const id = button.getAttribute("data-id");
-        if (confirm("Deseja excluir este recurso?")) {
+        if (confirm(/*[[#{resources.confirmDelete}]]*/ "Deseja excluir este recurso?")) {
             fetch(`/api/resources/${id}`, {
                 method: 'DELETE',
                 headers: {
@@ -171,13 +172,13 @@
                     [csrfHeader]: csrfToken
                 }
             }).then(res => {
-                    if (res.ok) {
-                        alert("Recurso excluído com sucesso!");
-                        location.reload();
-                    } else {
-                        return res.text().then(msg => alert("Erro: " + msg));
-                    }
-                });
+                if (res.ok) {
+                    alert(/*[[#{resources.deleted}]]*/ "Recurso excluído com sucesso!");
+                    location.reload();
+                } else {
+                    return res.text().then(msg => alert(/*[[#{resources.error}]]*/ "Erro: " + msg));
+                }
+            });
         }
     }
 
@@ -192,7 +193,6 @@
         const filtered = allResourceTypes.filter(type => type.name.toLowerCase().includes(input));
         renderResourceTypeOptions(filtered);
     }
-
 </script>
 <meta name="_csrf" th:content="${_csrf.token}"/>
 <meta name="_csrf_header" th:content="${_csrf.headerName}"/>

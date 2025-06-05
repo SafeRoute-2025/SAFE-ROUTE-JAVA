@@ -21,10 +21,9 @@ public class SafePlaceWebController {
     public String listSafePlaces(
             @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
             Model model) {
-
         Page<?> safePlacesPage = service.findAllPaged(pageable);
         model.addAttribute("safePlacesPage", safePlacesPage);
 
-        return "safeplacelist";
+        return "safeplaceList";
     }
 }

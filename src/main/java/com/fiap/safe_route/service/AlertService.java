@@ -7,25 +7,31 @@ import com.fiap.safe_route.model.Alert;
 import com.fiap.safe_route.model.Event;
 import com.fiap.safe_route.repository.AlertRepository;
 import com.fiap.safe_route.repository.EventRepository;
+import com.fiap.safe_route.service.messaging.AlertProducer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class AlertService {
 
+    @Autowired
     private final AlertRepository alertRepository;
+    @Autowired
     private final EventRepository eventRepository;
-
+    @Autowired
+    private final AlertProducer alertProducer;
     public AlertService(AlertRepository alertRepository,
-                        EventRepository eventRepository) {
+                        EventRepository eventRepository,
+                        AlertProducer alertProducer) {
         this.alertRepository = alertRepository;
         this.eventRepository = eventRepository;
+        this.alertProducer = alertProducer;
     }
 
     private AlertResponse toResponse(Alert alert) {
@@ -51,17 +57,20 @@ public class AlertService {
     }
 
     public AlertResponse create(AlertRequest request) {
-        Alert alert = new Alert();
-        alert.setMessage(request.message());
-
-        LocalDateTime sentAt = request.sentAt() != null ? request.sentAt() : LocalDateTime.now();
-        alert.setSentAt(sentAt);
-
         Event event = eventRepository.findById(request.eventId())
                 .orElseThrow(() -> new NotFoundException("Evento não encontrado"));
-        alert.setEvent(event);
 
-        return toResponse(alertRepository.save(alert));
+        Alert alert = Alert.builder()
+                .message(request.message())
+                .sentAt(request.sentAt() != null ? request.sentAt() : LocalDateTime.now())
+                .event(event)
+                .build();
+
+        alertRepository.save(alert);
+
+        AlertResponse response = toResponse(alert);
+        alertProducer.sendAlert(response);
+        return response;
     }
 
 
@@ -73,11 +82,15 @@ public class AlertService {
                 .orElseThrow(() -> new NotFoundException("Evento não encontrado"));
 
         alert.setMessage(request.message());
-        alert.setEvent(event);
         alert.setSentAt(request.sentAt() != null ? request.sentAt() : LocalDateTime.now());
+        alert.setEvent(event);
 
-        return toResponse(alertRepository.save(alert));
+        alertRepository.save(alert);
+        AlertResponse response = toResponse(alert);
+        alertProducer.sendAlert(response);
+        return response;
     }
+
 
 
     public void delete(Long id) {
@@ -96,6 +109,28 @@ public class AlertService {
     public void deleteOlderThanDays(int days) {
         LocalDateTime threshold = LocalDateTime.now().minusDays(days);
         alertRepository.deleteBySentAtBefore(threshold);
+    }
+
+    public void saveOrUpdateFromMessage(AlertResponse response) {
+        Event event = eventRepository.findById(response.getEventId())
+                .orElseThrow(() -> new NotFoundException("Evento não encontrado para o alerta"));
+
+        Alert alert;
+
+        if (response.getId() != null && alertRepository.existsById(response.getId())) {
+            alert = alertRepository.findById(response.getId())
+                    .orElseThrow(() -> new NotFoundException("Alerta não encontrado"));
+            alert.setMessage(response.getMessage());
+            alert.setSentAt(response.getSentAt());
+            alert.setEvent(event);
+        } else {
+            alert = Alert.builder()
+                    .message(response.getMessage())
+                    .sentAt(response.getSentAt())
+                    .event(event)
+                    .build();
+        }
+        alertRepository.save(alert);
     }
 
 }
