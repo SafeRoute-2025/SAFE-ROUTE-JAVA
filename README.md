@@ -1,7 +1,13 @@
 # 📍 SafeRoute - Java Spring Boot Application
 
 Sistema completo para **gestão de emergências e riscos** em ambientes urbanos, construído com **Spring Boot** e integrado com IA, mensageria assíncrona e arquitetura RESTful.  
-O sistema permite o cadastro de usuários, eventos, alertas, locais seguros e seus recursos, além de fornecer uma interface web para visualização e gerenciamento dos dados.
+O sistema permite o cadastro de usuários, eventos, alertas, locais seguros e seus recursos, além de fornecer uma interface web para visualização e gerenciamento dos dados.  
+
+## Futuras Implementações
+- Integração com APIs de geolocalização para mapear eventos e locais seguros
+- Notificações em tempo real via WebSocket
+- Dashboard de monitoramento de eventos e alertas
+- Geração de rotas seguras com base em eventos, alertas, locais seguros e localização do usuário.
 
 ---
 
