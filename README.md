@@ -150,7 +150,7 @@ com.fiap.safe_route
 
 ---
 ## Link dos Videos
-[Vídeo de Demonstração](https://youtu.be/1b0j2a3b4c5)  
+[Vídeo de Demonstração](https://youtu.be/OTyvS78hBKQ)  
 [Vídeo do pitch](https://youtu.be/6d7e8f9g0h1)
 
 ---
