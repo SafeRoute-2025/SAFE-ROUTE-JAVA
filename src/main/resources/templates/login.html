@@ -22,7 +22,10 @@
         </form>
 
         <hr class="login-divider">
-        <p class="register-link" th:text="#{login.noAccount}">Não tem uma conta? <a href="/register" class="register-button" th:text="#{login.register}">Registrar</a></p>
+        <p class="register-link">
+            <span th:text="#{login.noAccount}">Não tem uma conta?</span>
+            <a href="/register" class="register-button" th:text="#{login.register}">Registrar</a>
+        </p>
     </div>
 </div>
 </body>
