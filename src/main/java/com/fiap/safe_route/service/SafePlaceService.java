@@ -3,6 +3,7 @@ package com.fiap.safe_route.service;
 import com.fiap.safe_route.dto.safeplace.SafePlaceRequest;
 import com.fiap.safe_route.dto.safeplace.SafePlaceResponse;
 import com.fiap.safe_route.model.SafePlace;
+import com.fiap.safe_route.repository.ResourceRepository;
 import com.fiap.safe_route.repository.SafePlaceRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,9 +17,11 @@ import java.util.stream.Collectors;
 public class SafePlaceService {
 
     private final SafePlaceRepository repository;
+    private final ResourceRepository resourceRepository;
 
-    public SafePlaceService(SafePlaceRepository repository) {
+    public SafePlaceService(SafePlaceRepository repository, ResourceRepository resourceRepository) {
         this.repository = repository;
+        this.resourceRepository = resourceRepository;
     }
 
     public SafePlaceResponse create(SafePlaceRequest request) {
@@ -52,6 +55,7 @@ public class SafePlaceService {
         if (!repository.existsById(id)) {
             throw new RuntimeException("Safe Place not found");
         }
+
         repository.deleteById(id);
     }
 

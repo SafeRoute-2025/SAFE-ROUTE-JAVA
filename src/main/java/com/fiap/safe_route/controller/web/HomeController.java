@@ -81,7 +81,6 @@ public class HomeController {
         if (localeResolver != null) {
             localeResolver.setLocale(request, response, new Locale(lang));
         }
-        // Redireciona para a página anterior (referer)
         String referer = request.getHeader("Referer");
         return "redirect:" + (referer != null ? referer : "/");
     }

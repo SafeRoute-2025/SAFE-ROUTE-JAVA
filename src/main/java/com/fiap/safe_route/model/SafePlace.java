@@ -3,6 +3,9 @@ package com.fiap.safe_route.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "GS2025_SAFE_PLACE")
 @Data
@@ -29,4 +32,11 @@ public class SafePlace {
 
     @Column(name = "CAPACITY", nullable = false)
     private Integer capacity;
+
+    @OneToMany(mappedBy = "safePlace", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<Resource> resources = new ArrayList<>();
+
+
 }

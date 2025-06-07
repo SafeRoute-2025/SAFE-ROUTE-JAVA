@@ -1,7 +1,9 @@
 package com.fiap.safe_route.controller.api;
 
+import com.fiap.safe_route.dto.user.LoginRequest;
 import com.fiap.safe_route.dto.user.UserRequest;
 import com.fiap.safe_route.dto.user.UserResponse;
+import com.fiap.safe_route.repository.UserRepository;
 import com.fiap.safe_route.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,6 +16,8 @@ import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
@@ -23,9 +27,14 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 public class UserController {
 
     private final UserService service;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserController(UserService service) {
+
+    public UserController(UserService service, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.service = service;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Operation(summary = "Create a new user")
@@ -122,4 +131,11 @@ public class UserController {
         }
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        return userRepository.findByEmail(request.email())
+                .filter(user -> passwordEncoder.matches(request.password(), user.getPassword()))
+                .map(user -> ResponseEntity.ok().build())
+                .orElse(ResponseEntity.status(401).body("Credenciais inválidas"));
+    }
 }
