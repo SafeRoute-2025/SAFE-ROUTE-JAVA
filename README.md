@@ -151,8 +151,9 @@ com.fiap.safe_route
 ---
 ## Link dos Videos
 [Vídeo de Demonstração](https://youtu.be/OTyvS78hBKQ)  
-[Vídeo do pitch](https://youtu.be/6d7e8f9g0h1)
 
+## Pitch
+O documento do pitch está disponível na pasta `docs` do repositório.
 ---
 ## 👥 Autores
 - Mauricio Pereira - RM553748 - [GitHub](https://github.com/Mauricio-Pereira)
